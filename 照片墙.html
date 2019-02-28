@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        ul {
+            width: 480px;
+            margin: 30px auto;
+            height: 640px;
+            background: lightcoral;
+            padding: 5px;
+            position: relative;
+        }
+
+        li {
+            float: left;
+            width: 150px;
+            height: 150px;
+            margin: 5px;
+            cursor: move;
+            background: lemonchiffon;
+        }
+
+        li img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <ul>
+        <li><img src="./img/1.png" alt=""></li>
+        <li><img src="./img/2.png" alt=""></li>
+        <li><img src="./img/3.png" alt=""></li>
+        <li><img src="./img/4.png" alt=""></li>
+        <li><img src="./img/5.png" alt=""></li>
+        <li><img src="./img/6.png" alt=""></li>
+        <li><img src="./img/7.png" alt=""></li>
+        <li><img src="./img/8.png" alt=""></li>
+        <li><img src="./img/9.png" alt=""></li>
+        <li><img src="./img/10.png" alt=""></li>
+        <li><img src="./img/11.png" alt=""></li>
+        <li><img src="./img/12.png" alt=""></li>
+    </ul>
+</body>
+
+</html>
+<script src="../事件/event.js"></script>
+<script src="../事件/drag-class.js"></script>
+<script>
+    let olis = document.getElementsByTagName('li');
+    [...olis].reverse().forEach(item => {
+        item.style.left = item.offsetLeft + 'px';
+        item.style.top = item.offsetTop + 'px';
+        item.style.position = 'absolute';
+        item.style.margin = '0'
+        new Drag(item)
+        on(item, 'myZindex', addZIndex)
+        on(item, 'myIsHit', isHit)
+        on(item, 'myChange', change)
+    })
+    var n = 0;
+
+    function addZIndex(ele) {
+        n++;
+        this.style.zIndex = n
+    }
+
+    //碰撞
+    function isHit() {
+        //判断是否碰上  用取反的思想
+        this.l = this.offsetLeft;
+        this.r = this.l + this.offsetWidth;
+        this.t = this.offsetTop;
+        this.b = this.t + this.offsetHeight;
+        this.hitAry = []; //存储碰撞上的元素
+        [...olis].forEach(item => {
+            if (item === this) return;
+            item.l = item.offsetLeft;
+            item.r = item.l + item.offsetWidth;
+            item.t = item.offsetTop;
+            item.b = item.t + item.offsetHeight;
+            if (item.l > this.r || item.r < this.l || item.t > this.b || item.b < this.t) {
+                item.style.background = '';
+            } else {
+                item.style.background = 'lightcyan';
+                this.hitAry.push(item)
+            }
+        })
+    }
+
+    function change() {
+        if (this.hitAry.length == 0) {
+            this.style.left = this.startL + 'px'
+            this.style.top = this.startT + 'px'
+            return
+        }
+        this.hitAry.sort((a, b) => {
+            let l = a.offsetLeft - this.offsetLeft,
+                t = a.offsetTop - this.offsetTop,
+                instanceA = Math.pow(l, 2) + Math.pow(t, 2);
+
+            let l2 = b.offsetLeft - this.offsetLeft,
+                t2 = b.offsetTop - this.offsetTop,
+                instanceB = Math.pow(l2, 2) + Math.pow(t2, 2)
+
+            return instanceA - instanceB
+        })
+        //交换位置
+
+        let sl = this.hitAry[0].offsetTop,
+            st = this.hitAry[0].offsetLeft;
+        this.hitAry[0].style.left = this.startL + 'px'
+        this.hitAry[0].style.top = this.startT + 'px'
+        this.style.left = st + 'px'
+        this.style.top = sl + 'px'
+        this.hitAry.forEach(item => item.style.background = '')
+    }
+</script>
